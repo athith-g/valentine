@@ -1,65 +1,269 @@
+"use client";
+
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import PhraseSequence from "./components/phraseSequence";
+import { PERSONAL_PIC_PLACEMENTS } from "./utils/personalPics";
+
+const PERSONAL_PICS = [
+  "/personal_pics/1.jpg",
+  "/personal_pics/2.jpeg",
+  "/personal_pics/3.jpeg",
+  "/personal_pics/4.jpeg",
+  "/personal_pics/5.JPG",
+  "/personal_pics/6.jpeg",
+  "/personal_pics/7.JPG",
+  "/personal_pics/8.jpeg",
+  "/personal_pics/9.jpeg",
+  "/personal_pics/10.JPEG",
+  "/personal_pics/11.jpeg",
+  "/personal_pics/12.jpeg",
+  "/personal_pics/13.jpeg",
+  "/personal_pics/14.jpeg",
+  "/personal_pics/15.jpeg",
+  "/personal_pics/16.JPEG",
+];
+
+const BPM = 110;
+const BEAT_MS = 60000 / BPM;
+const PULSE_MS = BEAT_MS * 2;
+const PICTURE_DELAY_BEATS = 18;
+const PICTURE_DELAY_MS = (PICTURE_DELAY_BEATS - 1) * BEAT_MS;
+const TYPE_SPEED_MS = 70;
+const PHRASE_GAP_MS = 2000;
+const TEXT_FADE_MS = 600;
+
+const PHRASES = [
+  "Dear Cassie,",
+  "Valentine's day is coming up...",
+  "And since you're the...",
+  "PRETTIEST",
+  "SMARTEST",
+  "LOVELIEST",
+  "FUNNIEST",
+  "MOST THOUGHTFUL",
+  "MOST MYSTERIOUS",
+  "MOST AURA-HAVING",
+  "Girlfriend in the world...",
+  "I wanted to ask you a question..."
+];
+
+type PositionedPic = {
+  id: number;
+  src: string;
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+  zIndex: number;
+};
 
 export default function Home() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const pulseTimeoutRef = useRef<number | null>(null);
+  const pulseIntervalRef = useRef<number | null>(null);
+  const stageTimeoutRef = useRef<number | null>(null);
+  const redirectTimeoutRef = useRef<number | null>(null);
+  const audioFadeIntervalRef = useRef<number | null>(null);
+  const nextPicIndexRef = useRef(0);
+  const nextPicIdRef = useRef(0);
+  const aspectRatiosRef = useRef<Record<string, number>>({});
+  const [isShrinking, setIsShrinking] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+  const [isBeatActive, setIsBeatActive] = useState(false);
+  const [pics, setPics] = useState<PositionedPic[]>([]);
+  const [stage, setStage] = useState(0);
+  const [isDarkBackground, setIsDarkBackground] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    PERSONAL_PICS.forEach((src) => {
+      const img = new window.Image();
+      img.onload = () => {
+        if (img.naturalWidth > 0) {
+          aspectRatiosRef.current[src] = img.naturalHeight / img.naturalWidth;
+        }
+      };
+      img.src = src;
+    });
+
+    return () => {
+      if (pulseTimeoutRef.current) {
+        window.clearTimeout(pulseTimeoutRef.current);
+      }
+      if (pulseIntervalRef.current) {
+        window.clearInterval(pulseIntervalRef.current);
+      }
+      if (stageTimeoutRef.current) {
+        window.clearTimeout(stageTimeoutRef.current);
+      }
+      if (redirectTimeoutRef.current) {
+        window.clearTimeout(redirectTimeoutRef.current);
+      }
+      if (audioFadeIntervalRef.current) {
+        window.clearInterval(audioFadeIntervalRef.current);
+      }
+    };
+  }, []);
+
+  const fadeOutAudio = (durationMs: number) => {
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
+
+    const startVolume = audio.volume;
+    const steps = Math.max(1, Math.floor(durationMs / 50));
+    let currentStep = 0;
+
+    if (audioFadeIntervalRef.current) {
+      window.clearInterval(audioFadeIntervalRef.current);
+    }
+
+    audioFadeIntervalRef.current = window.setInterval(() => {
+      currentStep += 1;
+      const nextVolume = Math.max(
+        0,
+        startVolume * (1 - currentStep / steps)
+      );
+      audio.volume = nextVolume;
+
+      if (currentStep >= steps) {
+        audio.volume = 0;
+        audio.pause();
+        window.clearInterval(audioFadeIntervalRef.current!);
+        audioFadeIntervalRef.current = null;
+      }
+    }, 50);
+  };
+
+  const addNextPicture = () => {
+    const index = nextPicIndexRef.current;
+    if (index >= PERSONAL_PICS.length) {
+      if (pulseIntervalRef.current) {
+        window.clearInterval(pulseIntervalRef.current);
+      }
+      return;
+    }
+
+    const placement = PERSONAL_PIC_PLACEMENTS[index];
+    nextPicIndexRef.current = index + 1;
+    const src = PERSONAL_PICS[index];
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const width = placement?.width ?? 200;
+    const aspectRatio = aspectRatiosRef.current[src] ?? 1;
+    const height = Math.round(width * aspectRatio);
+    const padding = 16;
+    const maxLeft = Math.max(padding, viewportWidth - width - padding);
+    const maxTop = Math.max(padding, viewportHeight - height - padding);
+    const leftPercent = placement?.left ?? 10;
+    const topPercent = placement?.top ?? 10;
+    const left = Math.min(
+      Math.max(padding, Math.round((leftPercent / 100) * viewportWidth)),
+      maxLeft
+    );
+    const top = Math.min(
+      Math.max(padding, Math.round((topPercent / 100) * viewportHeight)),
+      maxTop
+    );
+
+    setPics((prev) => [
+      ...prev,
+      {
+        id: nextPicIdRef.current++,
+        src,
+        left,
+        top,
+        width,
+        height,
+        zIndex: index,
+      },
+    ]);
+
+    if (index === PERSONAL_PICS.length - 1) {
+      stageTimeoutRef.current = window.setTimeout(() => {
+        setStage(2);
+      }, PULSE_MS * 2);
+    }
+  };
+
+  const handleLetterClick = () => {
+    if (isShrinking) {
+      return;
+    }
+
+    setIsShrinking(true);
+    setStage(1);
+
+    window.setTimeout(() => {
+      setIsHidden(true);
+      setIsBeatActive(true);
+      audioRef.current?.play().catch(() => {});
+
+      pulseTimeoutRef.current = window.setTimeout(() => {
+        addNextPicture();
+        pulseIntervalRef.current = window.setInterval(
+          addNextPicture,
+          PULSE_MS * 2
+        );
+      }, PICTURE_DELAY_MS);
+    }, 450);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div
+      className={`main-app ${
+        isBeatActive && stage < 2 ? "bg-beat" : ""
+      } ${isDarkBackground ? "bg-dark" : ""}`}
+    >
+      <audio ref={audioRef} src="/song.mp3" preload="auto" />
+      {pics.map((pic) => (
+        <img
+          key={pic.id}
+          className={`personal-pic pic-fade-in ${
+            stage >= 2 ? "pic-fade-out" : ""
+          }`}
+          src={pic.src}
+          alt="Personal memory"
+          style={{
+            top: `${pic.top}px`,
+            left: `${pic.left}px`,
+            width: `${pic.width}px`,
+            height: `${pic.height}px`,
+            zIndex: pic.zIndex,
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      ))}
+      <PhraseSequence
+        phrases={PHRASES}
+        isEnabled={stage >= 2}
+        startDelayMs={PULSE_MS * 2}
+        typeSpeedMs={TYPE_SPEED_MS}
+        phraseGapMs={PHRASE_GAP_MS}
+        textFadeMs={TEXT_FADE_MS}
+        buttonFadeMs={TEXT_FADE_MS}
+        buttonLabel="View the question"
+        onButtonComplete={() => {
+          fadeOutAudio(1000);
+          setIsDarkBackground(true);
+          redirectTimeoutRef.current = window.setTimeout(() => {
+            router.push("/uh-oh");
+          }, 3000);
+        }}
+      />
+      {!isHidden && (
+        <Image
+          className={`letter-pulse ${isShrinking ? "letter-shrink" : ""}`}
+          src="/letter.png"
+          alt="Letter"
+          priority
+          width={200}
+          height={140}
+          onClick={handleLetterClick}
+        />
+      )}
     </div>
   );
 }
