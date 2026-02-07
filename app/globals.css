@@ -92,6 +92,7 @@ body {
   transform: translate(-50%, -50%);
   font-family: 'Knewave', system-ui;
   font-size: 3rem;
+  cursor: pointer;
 }
 
 .stage-button--show {
