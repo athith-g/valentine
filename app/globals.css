@@ -74,6 +74,22 @@ body {
   animation: text-fade-out 600ms ease-in forwards;
 }
 
+.challenge-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 22px;
+  border-radius: 20px;
+  border: none;
+  background: #ee2e31;
+  color: #fff;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  font-family: 'Knewave', system-ui;
+  font-size: 3rem;
+  cursor: pointer;
+  width: 400px;
+}
 .stage-button {
   display: flex;
   justify-content: center;
@@ -137,9 +153,10 @@ body {
 .evil-smiski {
   position: absolute;
   bottom: 0;
+  left: 50%;
   width: 420px;
   height: auto;
-  transform: translateY(100%);
+  transform: translate(-50%, 100%);
   pointer-events: none;
   z-index: 1;
 }
@@ -268,19 +285,40 @@ body {
 
 @keyframes smiski-rise {
   from {
-    transform: translateY(100%);
+    transform: translate(-50%, 100%);
   }
   to {
-    transform: translateY(40%);
+    transform: translate(-50%, 20%);
   }
 }
 
 @keyframes smiski-exit {
   from {
-    transform: translateY(40%);
+    transform: translate(-50%, 20%);
   }
   to {
-    transform: translateY(110%);
+    transform: translate(-50%, 110%);
+  }
+}
+
+@keyframes challenge-1-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation: fade-in 600ms ease-out both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -328,4 +366,258 @@ body {
   transform: translateX(-50%);
   width: 100%;
   z-index: 4;
+}
+
+.challenge-1 {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  min-height: 100vh;
+  width: 100%;
+  padding: 32px 24px;
+}
+
+.challenge-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.challenge-1--fade {
+  animation: challenge-1-fade-out 600ms ease-in forwards;
+}
+
+.challenge__directions {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  gap: 12px;
+  color: #d82525;
+  font-size: 2rem;
+  font-family: 'Barrio', system-ui;
+  margin-top: 24px;
+}
+
+.challenge-1__game {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.challenge-1__game img {
+  width: 1200px;
+  height: 900px;
+}
+
+.challenge-1__lock {
+  width: 1200px;
+  height: auto;
+}
+
+.challenge-1__inputs {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+}
+
+.challenge-1__inputs input {
+  width: 250px;
+  height: 64px;
+  text-align: center;
+  border-radius: 10px; 
+  color: #100f0f;
+  font-size: 1.4rem;
+  font-family: 'Barrio', system-ui;
+}
+
+.challenge-1__input--valid {
+  border: 6px solid #2ecc71;
+}
+
+.challenge-1__input--invalid {
+  border: 6px solid #ee2e31;
+}
+
+.challenge-2 {
+  padding: 32px 24px;
+  flex-direction: column;
+}
+
+.challenge-2__game {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+}
+
+.challenge-2__content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  min-height: 100vh;
+}
+
+.challenge-2 {
+  position: relative;
+}
+
+.challenge-2__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.challenge-2__overlay .challenge-directions-container {
+  pointer-events: auto;
+}
+
+.challenge-2--fade {
+  animation: challenge-1-fade-out 600ms ease-in forwards;
+}
+
+.challenge-2__tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 720px;
+}
+
+.challenge-2__tile {
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.challenge-2__tile-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 450ms ease;
+}
+
+.challenge-2__tile--flipped .challenge-2__tile-inner {
+  transform: rotateY(180deg);
+}
+
+.challenge-2__tile-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  backface-visibility: hidden;
+}
+
+.challenge-2__tile-front {
+  background: #f59e0b;
+}
+
+.challenge-2__tile-back {
+  background: #8b5a00;
+  transform: rotateY(180deg);
+}
+
+.challenge-2__tile-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 16px;
+}
+
+.challenge-3__tile {
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+  opacity: 0;
+  padding: 0;
+}
+
+.challenge-3__tile--hidden {
+  pointer-events: none;
+}
+
+.challenge-3__tile--disabled {
+  pointer-events: none;
+}
+
+.challenge-3__tile--blue {
+  background: transparent;
+}
+
+.challenge-3__tile--flash {
+  opacity: 1;
+  transform: scale(1.03);
+}
+
+.challenge-3__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 540px;
+}
+
+.challenge-3__tile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.challenge-3__directions {
+  gap: 6px;
+}
+
+.challenge-3__score {
+  margin-top: 4px;
+}
+
+.challenge-directions-text {
+  font-size: 3rem;
+  font-weight: 400;
+  color: #d82525;
+  margin: 0;
+  padding: 0 24px;
+  font-family: 'Knewave', system-ui;
+  max-width: 100%;
+  width: 100%;
+}
+
+.challenge-directions-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-direction: column;
+  max-width: 800px;
+  width: 100%;
+  height: 100vh;
+  padding: 0px 0px 30px 0;
+}
+
+.challenge-directions-signature {
+  text-align: right;
+  width: 100%;
 }
