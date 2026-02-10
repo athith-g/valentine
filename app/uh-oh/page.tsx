@@ -24,7 +24,6 @@ const EVIL_PHRASES = [
 ];
 
 export default function UhOh() {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const hideTimeoutRef = useRef<number | null>(null);
   const [showText, setShowText] = useState(true);
   const [showImage, setShowImage] = useState(false);
@@ -33,8 +32,8 @@ export default function UhOh() {
   const [showDialog, setShowDialog] = useState(false);
   const [showAcceptButton, setShowAcceptButton] = useState(false);
   const [isAcceptFading, setIsAcceptFading] = useState(false);
-  const [isAudioFading, setIsAudioFading] = useState(false);
-  const audioFadeIntervalRef = useRef<number | null>(null);
+  const acceptTimeoutRef = useRef<number | null>(null);
+  const ACCEPT_FADE_MS = 900;
 
   useEffect(() => {
     hideTimeoutRef.current = window.setTimeout(() => {
@@ -46,48 +45,14 @@ export default function UhOh() {
       if (hideTimeoutRef.current) {
         window.clearTimeout(hideTimeoutRef.current);
       }
-      if (audioFadeIntervalRef.current) {
-        window.clearInterval(audioFadeIntervalRef.current);
+      if (acceptTimeoutRef.current) {
+        window.clearTimeout(acceptTimeoutRef.current);
       }
     };
   }, []);
 
-  const fadeOutAudio = (durationMs: number, onComplete?: () => void) => {
-    const audio = audioRef.current;
-    if (!audio) {
-      onComplete?.();
-      return;
-    }
-
-    const startVolume = audio.volume;
-    const steps = Math.max(1, Math.floor(durationMs / 50));
-    let currentStep = 0;
-
-    if (audioFadeIntervalRef.current) {
-      window.clearInterval(audioFadeIntervalRef.current);
-    }
-
-    audioFadeIntervalRef.current = window.setInterval(() => {
-      currentStep += 1;
-      const nextVolume = Math.max(
-        0,
-        startVolume * (1 - currentStep / steps)
-      );
-      audio.volume = nextVolume;
-
-      if (currentStep >= steps) {
-        audio.volume = 0;
-        audio.pause();
-        window.clearInterval(audioFadeIntervalRef.current!);
-        audioFadeIntervalRef.current = null;
-        onComplete?.();
-      }
-    }, 50);
-  };
-
   return (
     <div className="main-app bg-dark">
-      <audio ref={audioRef} src="/evil.mp3" preload="auto" />
       {showText && <p className="uh-oh-text">Uh oh...</p>}
       {showImage && !hideImage && (
         <img
@@ -98,11 +63,6 @@ export default function UhOh() {
           alt="Evil letter"
           onClick={() => {
             setIsImageFading(true);
-            const audio = audioRef.current;
-            if (audio) {
-              audio.currentTime = 0;
-              audio.play().catch(() => {});
-            }
             setShowDialog(true);
             window.setTimeout(() => {
               setHideImage(true);
@@ -124,14 +84,13 @@ export default function UhOh() {
           }`}
           type="button"
           onClick={() => {
-            if (isAcceptFading || isAudioFading) {
+            if (isAcceptFading) {
               return;
             }
             setIsAcceptFading(true);
-            setIsAudioFading(true);
-            fadeOutAudio(900, () => {
+            acceptTimeoutRef.current = window.setTimeout(() => {
               window.location.href = "/challenge_1";
-            });
+            }, ACCEPT_FADE_MS);
           }}
         >
           Accept the challenge

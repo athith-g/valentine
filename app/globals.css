@@ -745,6 +745,10 @@ body {
   text-align: center;
 }
 
+.question-phrases {
+  transform: translateY(-24px);
+}
+
 .question-fade-out {
   animation: question-fade-out 800ms ease-in forwards;
 }
@@ -777,6 +781,8 @@ body {
 
 .confirm-page {
   min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -803,7 +809,7 @@ body {
 .confirm-title {
   margin: 0;
   font-size: 4.4rem;
-  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Funnel Display", system-ui, sans-serif;
   color: #1f1f1f;
 }
 
@@ -818,7 +824,7 @@ body {
   align-items: center;
   gap: 12px;
   font-size: 2.2rem;
-  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Funnel Display", system-ui, sans-serif;
   color: #2a2a2a;
 }
 
@@ -829,14 +835,14 @@ body {
 }
 
 .confirm-button {
-  align-self: flex-start;
+  align-self: center;
   padding: 12px 22px;
-  border-radius: 999px;
+  border-radius: 12px;
   border: none;
   background: #2563eb;
   color: #fff;
   font-size: 2.2rem;
-  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Funnel Display", system-ui, sans-serif;
   cursor: pointer;
   transition: opacity 200ms ease, transform 200ms ease;
 }
@@ -854,13 +860,10 @@ body {
 .message-card {
   width: min(620px, 92vw);
   padding: 32px 28px;
-  background: #fffaf0;
-  border-radius: 20px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
   gap: 24px;
-  text-align: center;
+  text-align: left;
 }
 
 .message-text {
@@ -868,8 +871,9 @@ body {
   flex-direction: column;
   gap: 12px;
   font-size: 2rem;
-  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Funnel Display", system-ui, sans-serif;
   color: #1f1f1f;
+  line-height: 1.4;
 }
 
 .message-text p {

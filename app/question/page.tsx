@@ -246,22 +246,24 @@ export default function Home() {
             }}
           />
         ))}
-        <PhraseSequence
-          phrases={PHRASES}
-          isEnabled={stage >= 2}
-          startDelayMs={PULSE_MS * 2}
-          typeSpeedMs={TYPE_SPEED_MS}
-          phraseGapMs={PHRASE_GAP_MS}
-          textFadeMs={TEXT_FADE_MS}
-          buttonFadeMs={TEXT_FADE_MS}
-          buttonLabel="View the question"
-          showButton={false}
-          onSequenceEnd={() => {
-            redirectTimeoutRef.current = window.setTimeout(() => {
-              setShowQuestion(true);
-            }, TEXT_FADE_MS);
-          }}
-        />
+        <div className="question-phrases">
+          <PhraseSequence
+            phrases={PHRASES}
+            isEnabled={stage >= 2}
+            startDelayMs={PULSE_MS * 2}
+            typeSpeedMs={TYPE_SPEED_MS}
+            phraseGapMs={PHRASE_GAP_MS}
+            textFadeMs={TEXT_FADE_MS}
+            buttonFadeMs={TEXT_FADE_MS}
+            buttonLabel="View the question"
+            showButton={false}
+            onSequenceEnd={() => {
+              redirectTimeoutRef.current = window.setTimeout(() => {
+                setShowQuestion(true);
+              }, TEXT_FADE_MS);
+            }}
+          />
+        </div>
         {showQuestion && (
           <div className="question-card fade-in">
             <h1 className="question-title">Will you be my valentine?</h1>

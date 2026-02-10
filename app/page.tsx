@@ -12,14 +12,16 @@ const CHECKBOX_LABELS = [
 const message = [
   "Hi Babe,",
   "I've spent a decent amount of time creating this little project.",
-  "There's a special message at the end of this.",
-  "I keep trying to make this work, but someone keeps trying to sabatoge me.",
+  "I keep trying to make this project flawless, but someone keeps trying to sabotage me.",
   "I think he's small and green but I've never been able to get a good look at him.",
-  "When you click the button below, I'm hoping you'll see what I made for you.",
+  "Anyway, when you click the button below, I'm hoping you'll see what I made for you.",
+  "Love,",
+  "Seattle Guy"
 ];
 
 const CONFIRM_FADE_MS = 700;
 const MESSAGE_FADE_MS = 700;
+const REDIRECT_DELAY_MS = 2000;
 
 export default function Home() {
   const confirmTimeoutRef = useRef<number | null>(null);
@@ -68,7 +70,7 @@ export default function Home() {
     setIsDarkBackground(true);
     messageTimeoutRef.current = window.setTimeout(() => {
       router.push("/uh-oh");
-    }, MESSAGE_FADE_MS);
+    }, MESSAGE_FADE_MS + REDIRECT_DELAY_MS);
   };
 
   return (

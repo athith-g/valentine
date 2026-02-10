@@ -11,7 +11,7 @@ type EvilSmiskiDialogProps = {
 };
 
 const TYPE_SPEED_MS = 60;
-const PHRASE_GAP_MS = 1200;
+const PHRASE_GAP_MS = 2200;
 const TEXT_FADE_MS = 500;
 const SMISKI_EXIT_MS = 900;
 
