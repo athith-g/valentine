@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import EvilSmiskiDialog from "../components/evilSmiskiDialog";
 import ChallengeDirections from "../components/challengeDirections";
 
-export default function Challenge1Game() {
+type Challenge1GameProps = {
+  onComplete?: () => void;
+};
+
+export default function Challenge1Game({ onComplete }: Challenge1GameProps) {
   const [month, setMonth] = useState("");
   const [day, setDay] = useState("");
   const [year, setYear] = useState("");
@@ -38,11 +42,12 @@ export default function Challenge1Game() {
       return;
     }
 
+    onComplete?.();
     setIsFadingOut(true);
     window.setTimeout(() => {
       setShowDialog(true);
     }, 600);
-  }, [allValid, isFadingOut]);
+  }, [allValid, isFadingOut, onComplete]);
 
   return (
     <div className="challenge-wrapper">
@@ -101,18 +106,19 @@ export default function Challenge1Game() {
         }}
       />
       {showDirections && (
-        <div className="fade-in">
-          <ChallengeDirections
-            text={[
-              "Challenge 2 awaits.",
-              "The rules will be revealed soon.",
-              "Get ready for the next test.",
-            ]}
-            buttonText="Next challenge"
-            onButtonClick={() => {
-              window.location.href = "/challenge_2";
-            }}
-          />
+        <div className="challenge-1__overlay">
+          <div className="fade-in">
+            <ChallengeDirections
+              text={[
+                "Find all the matching tiles.",
+                "That's pretty much it."
+              ]}
+              buttonText="Next challenge"
+              onButtonClick={() => {
+                window.location.href = "/challenge_2";
+              }}
+            />
+          </div>
         </div>
       )}
     </div>

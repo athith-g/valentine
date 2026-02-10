@@ -1,268 +1,125 @@
 "use client";
 
-import Image from "next/image";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import PhraseSequence from "./components/phraseSequence";
-import { PERSONAL_PIC_PLACEMENTS } from "./utils/personalPics";
 
-const PERSONAL_PICS = [
-  "/personal_pics/1.jpg",
-  "/personal_pics/2.jpeg",
-  "/personal_pics/3.jpeg",
-  "/personal_pics/4.jpeg",
-  "/personal_pics/5.JPG",
-  "/personal_pics/6.jpeg",
-  "/personal_pics/7.JPG",
-  "/personal_pics/8.jpeg",
-  "/personal_pics/9.jpeg",
-  "/personal_pics/10.JPEG",
-  "/personal_pics/11.jpeg",
-  "/personal_pics/12.jpeg",
-  "/personal_pics/13.jpeg",
-  "/personal_pics/14.jpeg",
-  "/personal_pics/15.jpeg",
-  "/personal_pics/16.JPEG",
+const CHECKBOX_LABELS = [
+  "You're on a laptop.",
+  "You turned your volume up (this is an audiovisual experience).",
+  "You're not a robot."
 ];
 
-const BPM = 110;
-const BEAT_MS = 60000 / BPM;
-const PULSE_MS = BEAT_MS * 2;
-const PICTURE_DELAY_BEATS = 18;
-const PICTURE_DELAY_MS = (PICTURE_DELAY_BEATS - 1) * BEAT_MS;
-const TYPE_SPEED_MS = 70;
-const PHRASE_GAP_MS = 2000;
-const TEXT_FADE_MS = 600;
-
-const PHRASES = [
-  "Dear Cassie,",
-  "Valentine's day is coming up...",
-  "And since you're the...",
-  "PRETTIEST",
-  "SMARTEST",
-  "LOVELIEST",
-  "FUNNIEST",
-  "MOST THOUGHTFUL",
-  "MOST MYSTERIOUS",
-  "MOST AURA-HAVING",
-  "Girlfriend in the world...",
-  "I wanted to ask you a question..."
+const message = [
+  "Hi Babe,",
+  "I've spent a decent amount of time creating this little project.",
+  "There's a special message at the end of this.",
+  "I keep trying to make this work, but someone keeps trying to sabatoge me.",
+  "I think he's small and green but I've never been able to get a good look at him.",
+  "When you click the button below, I'm hoping you'll see what I made for you.",
 ];
 
-type PositionedPic = {
-  id: number;
-  src: string;
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-  zIndex: number;
-};
+const CONFIRM_FADE_MS = 700;
+const MESSAGE_FADE_MS = 700;
 
 export default function Home() {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const pulseTimeoutRef = useRef<number | null>(null);
-  const pulseIntervalRef = useRef<number | null>(null);
-  const stageTimeoutRef = useRef<number | null>(null);
-  const redirectTimeoutRef = useRef<number | null>(null);
-  const audioFadeIntervalRef = useRef<number | null>(null);
-  const nextPicIndexRef = useRef(0);
-  const nextPicIdRef = useRef(0);
-  const aspectRatiosRef = useRef<Record<string, number>>({});
-  const [isShrinking, setIsShrinking] = useState(false);
-  const [isHidden, setIsHidden] = useState(false);
-  const [isBeatActive, setIsBeatActive] = useState(false);
-  const [pics, setPics] = useState<PositionedPic[]>([]);
-  const [stage, setStage] = useState(0);
+  const confirmTimeoutRef = useRef<number | null>(null);
+  const messageTimeoutRef = useRef<number | null>(null);
+  const [checked, setChecked] = useState(() =>
+    CHECKBOX_LABELS.map(() => false)
+  );
+  const [showConfirm, setShowConfirm] = useState(true);
+  const [isConfirmFading, setIsConfirmFading] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const [isMessageFading, setIsMessageFading] = useState(false);
   const [isDarkBackground, setIsDarkBackground] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    PERSONAL_PICS.forEach((src) => {
-      const img = new window.Image();
-      img.onload = () => {
-        if (img.naturalWidth > 0) {
-          aspectRatiosRef.current[src] = img.naturalHeight / img.naturalWidth;
-        }
-      };
-      img.src = src;
-    });
+  const allChecked = useMemo(() => checked.every(Boolean), [checked]);
 
+  useEffect(() => {
     return () => {
-      if (pulseTimeoutRef.current) {
-        window.clearTimeout(pulseTimeoutRef.current);
+      if (confirmTimeoutRef.current) {
+        window.clearTimeout(confirmTimeoutRef.current);
       }
-      if (pulseIntervalRef.current) {
-        window.clearInterval(pulseIntervalRef.current);
-      }
-      if (stageTimeoutRef.current) {
-        window.clearTimeout(stageTimeoutRef.current);
-      }
-      if (redirectTimeoutRef.current) {
-        window.clearTimeout(redirectTimeoutRef.current);
-      }
-      if (audioFadeIntervalRef.current) {
-        window.clearInterval(audioFadeIntervalRef.current);
+      if (messageTimeoutRef.current) {
+        window.clearTimeout(messageTimeoutRef.current);
       }
     };
   }, []);
 
-  const fadeOutAudio = (durationMs: number) => {
-    const audio = audioRef.current;
-    if (!audio) {
+  const handleConfirmClick = () => {
+    if (!allChecked || isConfirmFading) {
       return;
     }
 
-    const startVolume = audio.volume;
-    const steps = Math.max(1, Math.floor(durationMs / 50));
-    let currentStep = 0;
-
-    if (audioFadeIntervalRef.current) {
-      window.clearInterval(audioFadeIntervalRef.current);
-    }
-
-    audioFadeIntervalRef.current = window.setInterval(() => {
-      currentStep += 1;
-      const nextVolume = Math.max(
-        0,
-        startVolume * (1 - currentStep / steps)
-      );
-      audio.volume = nextVolume;
-
-      if (currentStep >= steps) {
-        audio.volume = 0;
-        audio.pause();
-        window.clearInterval(audioFadeIntervalRef.current!);
-        audioFadeIntervalRef.current = null;
-      }
-    }, 50);
+    setIsConfirmFading(true);
+    confirmTimeoutRef.current = window.setTimeout(() => {
+      setShowConfirm(false);
+      setShowMessage(true);
+    }, CONFIRM_FADE_MS);
   };
 
-  const addNextPicture = () => {
-    const index = nextPicIndexRef.current;
-    if (index >= PERSONAL_PICS.length) {
-      if (pulseIntervalRef.current) {
-        window.clearInterval(pulseIntervalRef.current);
-      }
+  const handleMessageClick = () => {
+    if (isMessageFading) {
       return;
     }
 
-    const placement = PERSONAL_PIC_PLACEMENTS[index];
-    nextPicIndexRef.current = index + 1;
-    const src = PERSONAL_PICS[index];
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const width = placement?.width ?? 200;
-    const aspectRatio = aspectRatiosRef.current[src] ?? 1;
-    const height = Math.round(width * aspectRatio);
-    const padding = 16;
-    const maxLeft = Math.max(padding, viewportWidth - width - padding);
-    const maxTop = Math.max(padding, viewportHeight - height - padding);
-    const leftPercent = placement?.left ?? 10;
-    const topPercent = placement?.top ?? 10;
-    const left = Math.min(
-      Math.max(padding, Math.round((leftPercent / 100) * viewportWidth)),
-      maxLeft
-    );
-    const top = Math.min(
-      Math.max(padding, Math.round((topPercent / 100) * viewportHeight)),
-      maxTop
-    );
-
-    setPics((prev) => [
-      ...prev,
-      {
-        id: nextPicIdRef.current++,
-        src,
-        left,
-        top,
-        width,
-        height,
-        zIndex: index,
-      },
-    ]);
-
-    if (index === PERSONAL_PICS.length - 1) {
-      stageTimeoutRef.current = window.setTimeout(() => {
-        setStage(2);
-      }, PULSE_MS * 2);
-    }
-  };
-
-  const handleLetterClick = () => {
-    if (isShrinking) {
-      return;
-    }
-
-    setIsShrinking(true);
-    setStage(1);
-
-    window.setTimeout(() => {
-      setIsHidden(true);
-      setIsBeatActive(true);
-      audioRef.current?.play().catch(() => {});
-
-      pulseTimeoutRef.current = window.setTimeout(() => {
-        addNextPicture();
-        pulseIntervalRef.current = window.setInterval(
-          addNextPicture,
-          PULSE_MS * 2
-        );
-      }, PICTURE_DELAY_MS);
-    }, 450);
+    setIsMessageFading(true);
+    setIsDarkBackground(true);
+    messageTimeoutRef.current = window.setTimeout(() => {
+      router.push("/uh-oh");
+    }, MESSAGE_FADE_MS);
   };
 
   return (
     <div
-      className={`main-app ${
-        isBeatActive && stage < 2 ? "bg-beat" : ""
-      } ${isDarkBackground ? "bg-dark" : ""}`}
+      className={`confirm-page ${isDarkBackground ? "confirm-page--dark" : ""}`}
     >
-      <audio ref={audioRef} src="/song.mp3" preload="auto" />
-      {pics.map((pic) => (
-        <img
-          key={pic.id}
-          className={`personal-pic pic-fade-in ${
-            stage >= 2 ? "pic-fade-out" : ""
+      {showConfirm && (
+        <div className={`confirm-card ${isConfirmFading ? "confirm-fade-out" : ""}`}>
+          <h1 className="confirm-title">Confirm:</h1>
+          <div className="confirm-options">
+            {CHECKBOX_LABELS.map((label, index) => (
+              <label key={label} className="confirm-option">
+                <input
+                  className="confirm-checkbox"
+                  type="checkbox"
+                  checked={checked[index]}
+                  onChange={(event) => {
+                    const next = [...checked];
+                    next[index] = event.target.checked;
+                    setChecked(next);
+                  }}
+                />
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
+          <button
+            className="confirm-button"
+            type="button"
+            disabled={!allChecked}
+            onClick={handleConfirmClick}
+          >
+            Continue
+          </button>
+        </div>
+      )}
+      {showMessage && (
+        <div
+          className={`message-card ${
+            isMessageFading ? "message-fade-out" : "message-fade-in"
           }`}
-          src={pic.src}
-          alt="Personal memory"
-          style={{
-            top: `${pic.top}px`,
-            left: `${pic.left}px`,
-            width: `${pic.width}px`,
-            height: `${pic.height}px`,
-            zIndex: pic.zIndex,
-          }}
-        />
-      ))}
-      <PhraseSequence
-        phrases={PHRASES}
-        isEnabled={stage >= 2}
-        startDelayMs={PULSE_MS * 2}
-        typeSpeedMs={TYPE_SPEED_MS}
-        phraseGapMs={PHRASE_GAP_MS}
-        textFadeMs={TEXT_FADE_MS}
-        buttonFadeMs={TEXT_FADE_MS}
-        buttonLabel="View the question"
-        onButtonComplete={() => {
-          fadeOutAudio(1000);
-          setIsDarkBackground(true);
-          redirectTimeoutRef.current = window.setTimeout(() => {
-            router.push("/uh-oh");
-          }, 3000);
-        }}
-      />
-      {!isHidden && (
-        <Image
-          className={`letter-pulse ${isShrinking ? "letter-shrink" : ""}`}
-          src="/letter.png"
-          alt="Letter"
-          priority
-          width={200}
-          height={140}
-          onClick={handleLetterClick}
-        />
+        >
+          <div className="message-text">
+            {message.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </div>
+          <button className="confirm-button" type="button" onClick={handleMessageClick}>
+            View message
+          </button>
+        </div>
       )}
     </div>
   );

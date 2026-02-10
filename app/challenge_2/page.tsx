@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import EvilSmiskiDialog from "../components/evilSmiskiDialog";
 import ChallengeDirections from "../components/challengeDirections";
 
@@ -22,6 +22,8 @@ export default function Challenge2Game() {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [showDirections, setShowDirections] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioFadeIntervalRef = useRef<number | null>(null);
 
   const handleTileClick = (index: number) => {
     if (isLocked || matchedTiles.has(index) || flippedTiles.includes(index)) {
@@ -48,10 +50,46 @@ export default function Challenge2Game() {
   };
 
   useEffect(() => {
+    audioRef.current?.play().catch(() => {});
+  }, []);
+
+  const fadeOutAudio = (durationMs: number) => {
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
+
+    const startVolume = audio.volume;
+    const steps = Math.max(1, Math.floor(durationMs / 50));
+    let currentStep = 0;
+
+    if (audioFadeIntervalRef.current) {
+      window.clearInterval(audioFadeIntervalRef.current);
+    }
+
+    audioFadeIntervalRef.current = window.setInterval(() => {
+      currentStep += 1;
+      const nextVolume = Math.max(
+        0,
+        startVolume * (1 - currentStep / steps)
+      );
+      audio.volume = nextVolume;
+
+      if (currentStep >= steps) {
+        audio.volume = 0;
+        audio.pause();
+        window.clearInterval(audioFadeIntervalRef.current!);
+        audioFadeIntervalRef.current = null;
+      }
+    }, 50);
+  };
+
+  useEffect(() => {
     if (matchedTiles.size !== tiles.length || isFadingOut) {
       return;
     }
 
+    fadeOutAudio(1200);
     setIsFadingOut(true);
     window.setTimeout(() => {
       setShowDialog(true);
@@ -60,11 +98,12 @@ export default function Challenge2Game() {
 
   return (
     <div className="main-app bg-dark challenge-2">
+      <audio ref={audioRef} src="/remember.mp3" preload="auto" />
       <div className={`challenge-2__content ${isFadingOut ? "challenge-2--fade" : ""}`}>
-        <div className="challenge__directions">
+        <div className="challenge__directions challenge-2__fade">
           <p>Click the tile to flip it. Find all the matching tiles.</p>
         </div>
-        <div className="challenge-2__game">
+        <div className="challenge-2__game challenge-2__fade">
           <div className="challenge-2__tiles">
             {Array.from({ length: 12 }).map((_, index) => {
               const isFlipped =
@@ -117,13 +156,13 @@ export default function Challenge2Game() {
           <div className="fade-in">
             <ChallengeDirections
               text={[
-                "Challenge 3 awaits.",
-                "The rules will be revealed soon.",
-                "Get ready for the next test.",
+                "This challenge is a speed test",
+                "9 faces will flash in front of you. You will have to click my face before I disappear",
+                "Try not to... hurt yourself >:)"
               ]}
               buttonText="Next challenge"
               onButtonClick={() => {
-                window.location.href = "/challange_3";
+                window.location.href = "/challenge_3";
               }}
             />
           </div>

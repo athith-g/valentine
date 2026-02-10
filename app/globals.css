@@ -311,6 +311,10 @@ body {
   animation: fade-in 600ms ease-out both;
 }
 
+.challenge-2__fade {
+  animation: fade-in 1200ms ease-out both;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -381,6 +385,18 @@ body {
   position: relative;
   width: 100%;
   min-height: 100vh;
+}
+
+.challenge-1__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.challenge-1__overlay .challenge-directions-container {
+  pointer-events: auto;
 }
 
 .challenge-1--fade {
@@ -586,6 +602,414 @@ body {
   object-fit: cover;
   border-radius: 12px;
 }
+
+.challenge-4__triangle {
+  position: relative;
+  width: 560px;
+  height: 480px;
+}
+
+.challenge-4__face {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+  border-radius: 0;
+  transition: box-shadow 200ms ease;
+}
+
+.challenge-4__face--top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.challenge-4__face--left {
+  bottom: 0;
+  left: 0;
+}
+
+.challenge-4__face--right {
+  bottom: 0;
+  right: 0;
+}
+
+.challenge-4__face--selected {
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px rgba(46, 204, 113, 0.85), 0 0 20px rgba(46, 204, 113, 0.65);
+}
+
+.challenge-4__nobody {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 220px;
+  height: 220px;
+  border: 2px dashed rgba(245, 240, 230, 0.7);
+  background: rgba(0, 0, 0, 0.25);
+  color: #f5f0e6;
+  font-size: 1.2rem;
+  font-family: 'Barrio', system-ui;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.challenge-4__nobody--selected {
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px rgba(46, 204, 113, 0.85), 0 0 20px rgba(46, 204, 113, 0.65);
+}
+
+.challenge-4__content {
+  width: 100%;
+}
+
+.challenge-4__fade {
+  animation: challenge-4-fade-out 600ms ease-in forwards;
+}
+
+.challenge-4__tram {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 320px;
+  height: auto;
+  transform: translate(-120%, -50%);
+  animation: tram-pass 4.5s linear forwards;
+  pointer-events: none;
+}
+
+.challenge-4__tram--reverse {
+  left: auto;
+  right: 0;
+  transform: translate(120%, -50%);
+  animation: tram-pass-reverse 4.5s linear forwards;
+}
+
+.challenge-4__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #262322;
+  z-index: 20;
+}
+
+.challenge-4__loss {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: #f5f0e6;
+  font-size: 2rem;
+  font-family: 'Barrio', system-ui;
+  max-width: 80vw;
+  text-align: center;
+}
+
+.challenge-4__loss-button {
+  padding: 18px 32px;
+  border-radius: 999px;
+  border: none;
+  background: #ee2e31;
+  color: #fff;
+  font-size: 1.6rem;
+  font-family: 'Barrio', system-ui;
+  cursor: pointer;
+}
+
+.congrats--fade {
+  animation: congrats-fade-out 1200ms ease-in forwards;
+}
+
+@keyframes congrats-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.question-card {
+  position: absolute;
+  top: 38%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.question-fade-out {
+  animation: question-fade-out 800ms ease-in forwards;
+}
+
+.question-title {
+  margin: 0;
+  font-size: 3.2rem;
+  font-family: 'Barrio', system-ui;
+  color: #111;
+}
+
+.question-button {
+  width: 320px;
+  padding: 16px 22px;
+  border-radius: 999px;
+  border: none;
+  font-size: 1.7rem;
+  font-family: 'Barrio', system-ui;
+  color: #fff;
+  cursor: pointer;
+}
+
+.question-button--blue {
+  background: #ee2e31;
+}
+
+.question-button--red {
+  background: #2563eb;
+}
+
+.confirm-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #f8f2dc;
+  transition: background 700ms ease;
+}
+
+.confirm-page.confirm-page--dark {
+  background: #262322;
+}
+
+.confirm-card {
+  width: min(520px, 92vw);
+  padding: 28px 26px;
+  background: #fffaf0;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.confirm-title {
+  margin: 0;
+  font-size: 4.4rem;
+  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: #1f1f1f;
+}
+
+.confirm-options {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.confirm-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 2.2rem;
+  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: #2a2a2a;
+}
+
+.confirm-checkbox {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+}
+
+.confirm-button {
+  align-self: flex-start;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  font-size: 2.2rem;
+  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  cursor: pointer;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.confirm-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.confirm-fade-out {
+  animation: confirm-fade-out 700ms ease-in forwards;
+}
+
+.message-card {
+  width: min(620px, 92vw);
+  padding: 32px 28px;
+  background: #fffaf0;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  text-align: center;
+}
+
+.message-text {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 2rem;
+  font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: #1f1f1f;
+}
+
+.message-text p {
+  margin: 0;
+}
+
+.message-fade-in {
+  animation: message-fade-in 700ms ease-out both;
+}
+
+.message-fade-out {
+  animation: message-fade-out 700ms ease-in forwards;
+}
+
+@keyframes confirm-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes message-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes message-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.sephora-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.sephora-image {
+  width: min(70vw, 520px);
+  height: auto;
+  border-radius: 24px;
+}
+
+.sephora-caption {
+  margin: 0;
+  font-size: 3rem;
+  font-family: 'Barrio', system-ui;
+  color: #111;
+}
+
+.sephora-fade-in {
+  animation: sephora-fade-in 600ms ease-out both;
+}
+
+@keyframes question-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sephora-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes challenge-4-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes tram-pass {
+  0% {
+    transform: translate(-120%, -50%);
+  }
+  100% {
+    transform: translate(200vw, -50%);
+  }
+}
+
+@keyframes tram-pass-reverse {
+  0% {
+    transform: translate(120%, -50%);
+  }
+  100% {
+    transform: translate(-200vw, -50%);
+  }
+}
+
+.challenge-4__button {
+  position: absolute;
+  padding: 16px 28px;
+  border-radius: 999px;
+  border: none;
+  background: #ee2e31;
+  color: #fff;
+  font-size: 1.8rem;
+  font-family: 'Barrio', system-ui;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.challenge-4__options {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.challenge-4__option-button {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: none;
+  background: #ee2e31;
+  color: #fff;
+  font-size: 1.1rem;
+  font-family: 'Barrio', system-ui;
+  cursor: pointer;
+}
+
 
 .challenge-3__directions {
   gap: 6px;

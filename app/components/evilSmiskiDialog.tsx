@@ -20,11 +20,44 @@ export default function EvilSmiskiDialog({
   isActive,
   onComplete,
 }: EvilSmiskiDialogProps) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioFadeIntervalRef = useRef<number | null>(null);
   const [showSmiski, setShowSmiski] = useState(false);
   const [isSmiskiRising, setIsSmiskiRising] = useState(false);
   const [isSmiskiExiting, setIsSmiskiExiting] = useState(false);
   const [showText, setShowText] = useState(false);
   const exitTimeoutRef = useRef<number | null>(null);
+
+  const fadeOutAudio = (durationMs: number) => {
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
+
+    const startVolume = audio.volume;
+    const steps = Math.max(1, Math.floor(durationMs / 50));
+    let currentStep = 0;
+
+    if (audioFadeIntervalRef.current) {
+      window.clearInterval(audioFadeIntervalRef.current);
+    }
+
+    audioFadeIntervalRef.current = window.setInterval(() => {
+      currentStep += 1;
+      const nextVolume = Math.max(
+        0,
+        startVolume * (1 - currentStep / steps)
+      );
+      audio.volume = nextVolume;
+
+      if (currentStep >= steps) {
+        audio.volume = 0;
+        audio.pause();
+        window.clearInterval(audioFadeIntervalRef.current!);
+        audioFadeIntervalRef.current = null;
+      }
+    }, 50);
+  };
 
   useEffect(() => {
     if (!isActive) {
@@ -35,6 +68,9 @@ export default function EvilSmiskiDialog({
       if (exitTimeoutRef.current) {
         window.clearTimeout(exitTimeoutRef.current);
       }
+      if (audioFadeIntervalRef.current) {
+        window.clearInterval(audioFadeIntervalRef.current);
+      }
       return;
     }
 
@@ -43,6 +79,7 @@ export default function EvilSmiskiDialog({
     window.requestAnimationFrame(() => {
       setIsSmiskiRising(true);
     });
+    audioRef.current?.play().catch(() => {});
   }, [isActive]);
 
   return (
@@ -62,6 +99,7 @@ export default function EvilSmiskiDialog({
             showButton={false}
             onSequenceEnd={() => {
               setIsSmiskiExiting(true);
+              fadeOutAudio(SMISKI_EXIT_MS);
               exitTimeoutRef.current = window.setTimeout(() => {
                 setShowText(false);
                 setShowSmiski(false);
@@ -84,6 +122,7 @@ export default function EvilSmiskiDialog({
           alt="Evil smiski"
         />
       )}
+      <audio ref={audioRef} src="/evil.mp3" preload="auto" />
     </>
   );
 }
